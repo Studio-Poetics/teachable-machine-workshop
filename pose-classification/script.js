@@ -12,7 +12,7 @@
 // ========================================
 
 // Replace this with your Teachable Machine model URL
-const MODEL_URL = 'YOUR_MODEL_URL_HERE';
+const MODEL_URL = "https://teachablemachine.withgoogle.com/models/-A0DTC3da/";
 
 // Canvas dimensions
 const CANVAS_WIDTH = 640;
@@ -37,6 +37,7 @@ let predictions = [];
 let lastClassificationTime = 0;
 let modelReady = false;
 let isRunning = false;
+let webcamReady = false;
 
 // Current pose data
 let currentPose = null;
@@ -106,9 +107,15 @@ const poseConnections = [
  * Setup function - initializes canvas and UI
  */
 function setup() {
+    console.log('Setup function called');
+    
     // Create canvas and attach it to the container
     let canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
     canvas.parent('canvas-container');
+    
+    // Store canvas reference globally for debugging
+    window.p5Canvas = canvas;
+    console.log('Canvas created:', canvas);
     
     // Get UI elements
     statusElement = select('#status');
@@ -122,6 +129,12 @@ function setup() {
     currentPoseDisplay = select('#current-pose-display');
     keypointsCountSpan = select('#keypoints-count');
     poseConfidenceSpan = select('#pose-confidence');
+    
+    console.log('UI elements found:', {
+        statusElement: !!statusElement,
+        startBtn: !!startBtn,
+        stopBtn: !!stopBtn
+    });
     
     // Set up event listeners
     startBtn.mousePressed(startCamera);
@@ -141,7 +154,7 @@ function setup() {
     });
     
     // Load the model
-    loadModel();
+    loadTMModel();
     
     // Set initial status
     updateStatus('Loading model...');
@@ -154,13 +167,73 @@ function draw() {
     // Clear background
     background(40, 45, 60);
     
-    if (isRunning && webcam) {
-        // Draw the webcam feed
-        push();
-        translate(width, 0);
-        scale(-1, 1); // Flip horizontally for mirror effect
-        image(webcam.canvas, 0, 0, width, height);
-        pop();
+    if (isRunning && webcamReady && webcam && webcam.canvas) {
+        // Force webcam update in draw loop as backup
+        try {
+            webcam.update();
+        } catch (e) {
+            // Ignore update errors
+        }
+        
+        // Make sure webcam canvas is ready
+        if (webcam && webcam.canvas && 
+            typeof webcam.canvas.width !== 'undefined' && 
+            typeof webcam.canvas.height !== 'undefined' &&
+            webcam.canvas.width > 0 && webcam.canvas.height > 0) {
+            
+            // Debug webcam canvas content
+            console.log('Webcam canvas has video data:', !webcam.canvas.isBlank);
+            
+            // Check if webcam canvas has actual video content
+            let ctx = drawingContext;
+            
+            // Try to get image data to see if there's actual content
+            try {
+                let imageData = webcam.canvas.getContext('2d').getImageData(0, 0, 100, 100);
+                let hasNonZeroPixels = false;
+                for (let i = 0; i < imageData.data.length; i += 4) {
+                    if (imageData.data[i] > 0 || imageData.data[i+1] > 0 || imageData.data[i+2] > 0) {
+                        hasNonZeroPixels = true;
+                        break;
+                    }
+                }
+                console.log('Webcam canvas has video content:', hasNonZeroPixels);
+                
+                if (hasNonZeroPixels) {
+                    // Simple direct drawing like the working example
+                    let ctx = drawingContext;
+                    ctx.save();
+                    ctx.scale(-1, 1); // Mirror effect
+                    ctx.translate(-width, 0);
+                    ctx.drawImage(webcam.canvas, 0, 0, width, height);
+                    ctx.restore();
+                    
+                    // Only log occasionally to avoid spam
+                    if (frameCount % 60 === 0) {
+                        console.log('Drawing webcam video feed');
+                    }
+                } else {
+                    // Don't draw placeholder every frame, just when needed
+                    if (frameCount % 30 === 0) {
+                        console.log('Waiting for webcam video data...');
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking webcam canvas content:', error);
+                
+                // Fallback - just try to draw it
+                ctx.drawImage(webcam.canvas, 0, 0, width, height);
+            }
+            
+        } else {
+            // Draw a test rectangle to show the drawing area
+            fill(255, 0, 0, 100);
+            noStroke();
+            rect(0, 0, width, height);
+            fill(255);
+            textAlign(CENTER, CENTER);
+            text('Webcam canvas not ready', width/2, height/2);
+        }
         
         // Draw pose visualization
         if (currentPose) {
@@ -169,8 +242,13 @@ function draw() {
         
         // Perform classification at intervals
         if (modelReady && millis() - lastClassificationTime > CLASSIFICATION_INTERVAL) {
+            console.log('Attempting prediction - modelReady:', modelReady);
             predict();
             lastClassificationTime = millis();
+        } else {
+            if (frameCount % 60 === 0) { // Log every second
+                console.log('Prediction check - modelReady:', modelReady, 'timeSinceLastClassification:', millis() - lastClassificationTime);
+            }
         }
         
         // Draw overlay information
@@ -194,24 +272,51 @@ function draw() {
  */
 async function startCamera() {
     try {
+        updateStatus('Initializing camera...');
+        
         // Initialize webcam
         const size = 640;
         const flip = true;
         webcam = new tmPose.Webcam(size, size, flip);
+        
+        console.log('Webcam created, setting up...');
         await webcam.setup();
+        
+        console.log('Webcam setup complete, starting...');
         await webcam.play();
         
+        // Wait longer for the webcam to start streaming
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Force initial update
+        await webcam.update();
+        
+        console.log('Webcam canvas:', webcam.canvas);
+        if (webcam.canvas && typeof webcam.canvas.width !== 'undefined' && typeof webcam.canvas.height !== 'undefined') {
+            console.log('Webcam canvas dimensions:', webcam.canvas.width, 'x', webcam.canvas.height);
+        } else {
+            console.log('Webcam canvas dimensions not available yet');
+        }
+        
         isRunning = true;
+        webcamReady = true;
         startBtn.attribute('disabled', true);
         stopBtn.removeAttribute('disabled');
         updateStatus('Camera started! Stand back and strike a pose!');
         
-        // Start the webcam loop
-        window.requestAnimationFrame(loop);
+        // Start the webcam update loop
+        loop();
+        
+        // Debug: Check if webcam is updating
+        setInterval(() => {
+            if (isRunning && webcam && webcam.canvas) {
+                console.log('Webcam update check - frame:', frameCount);
+            }
+        }, 2000);
         
     } catch (error) {
         console.error('Error starting camera:', error);
-        updateStatus('Error starting camera. Please check permissions.');
+        updateStatus('Error starting camera. Please check permissions and try again.');
     }
 }
 
@@ -220,6 +325,7 @@ async function startCamera() {
  */
 function stopCamera() {
     isRunning = false;
+    webcamReady = false;
     startBtn.removeAttribute('disabled');
     stopBtn.attribute('disabled', true);
     updateStatus('Camera stopped. Click "Start Camera" to begin.');
@@ -243,10 +349,19 @@ function stopCamera() {
 /**
  * Webcam loop for pose detection
  */
-async function loop(timestamp) {
+function loop() {
     if (isRunning && webcam) {
-        webcam.update();
-        await window.requestAnimationFrame(loop);
+        try {
+            // Update webcam canvas
+            webcam.update();
+            
+            // Continue the loop
+            requestAnimationFrame(loop);
+        } catch (error) {
+            console.error('Webcam loop error:', error);
+            // Restart the loop even if there's an error
+            setTimeout(loop, 16); // ~60fps fallback
+        }
     }
 }
 
@@ -257,26 +372,59 @@ async function loop(timestamp) {
 /**
  * Load the Teachable Machine model
  */
-async function loadModel() {
+async function loadTMModel() {
     try {
+        console.log('Starting model load process with URL:', MODEL_URL);
+        
         // Check if model URL is set
         if (MODEL_URL === 'YOUR_MODEL_URL_HERE') {
             updateStatus('Please update the MODEL_URL in script.js with your Teachable Machine model URL');
             return;
         }
         
+        // Ensure URL ends with slash
+        const baseURL = MODEL_URL.endsWith('/') ? MODEL_URL : MODEL_URL + '/';
+        
         // Load the model
-        const modelURL = MODEL_URL + 'model.json';
-        const metadataURL = MODEL_URL + 'metadata.json';
+        const modelURL = baseURL + 'model.json';
+        const metadataURL = baseURL + 'metadata.json';
+        
+        console.log('Loading model from:', modelURL);
+        console.log('Loading metadata from:', metadataURL);
+        
+        // Test if URLs are accessible
+        try {
+            const modelResponse = await fetch(modelURL);
+            const metadataResponse = await fetch(metadataURL);
+            
+            console.log('Model URL response status:', modelResponse.status);
+            console.log('Metadata URL response status:', metadataResponse.status);
+            
+            if (!modelResponse.ok) {
+                throw new Error(`Model URL returned ${modelResponse.status}: ${modelResponse.statusText}`);
+            }
+            if (!metadataResponse.ok) {
+                throw new Error(`Metadata URL returned ${metadataResponse.status}: ${metadataResponse.statusText}`);
+            }
+            
+        } catch (fetchError) {
+            console.error('Error accessing model URLs:', fetchError);
+            updateStatus('Error: Cannot access model files. Please check the model URL.');
+            return;
+        }
+        
+        updateStatus('Model files accessible, loading model...');
         
         model = await tmPose.load(modelURL, metadataURL);
         console.log('Model loaded successfully!');
+        console.log('Model details:', model);
         modelReady = true;
         updateStatus('Model ready! Click "Start Camera" to begin.');
         
     } catch (error) {
         console.error('Error loading model:', error);
-        updateStatus('Error loading model. Please check the model URL.');
+        console.error('Error details:', error.message);
+        updateStatus('Error loading model: ' + error.message);
     }
 }
 
@@ -284,22 +432,39 @@ async function loadModel() {
  * Predict pose and classify
  */
 async function predict() {
+    console.log('predict() called - model:', !!model, 'webcam:', !!webcam, 'isRunning:', isRunning);
     if (!model || !webcam || !isRunning) return;
     
     try {
-        // Estimate pose
+        // Make sure webcam canvas is ready
+        if (!webcam || !webcam.canvas || 
+            typeof webcam.canvas.width === 'undefined' || 
+            typeof webcam.canvas.height === 'undefined' ||
+            webcam.canvas.width === 0 || webcam.canvas.height === 0) {
+            console.log('Webcam canvas not ready yet');
+            return;
+        }
+        
+        // Simplified prediction flow like the working example
         const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
+        const prediction = await model.predict(posenetOutput);
+        
+        console.log('Prediction result:', prediction);
+        
         currentPose = pose;
         
-        // Classify pose
-        const prediction = await model.predict(posenetOutput);
-        handleClassification(prediction);
+        // Handle the prediction results directly
+        if (prediction && Array.isArray(prediction) && prediction.length > 0) {
+            handleClassification(prediction);
+        }
         
         // Update pose statistics
         updatePoseStats();
         
     } catch (error) {
         console.error('Prediction error:', error);
+        console.error('Error details:', error.message);
+        console.error('Stack trace:', error.stack);
     }
 }
 
@@ -308,8 +473,29 @@ async function predict() {
  * @param {Object[]} results - Array of classification results
  */
 function handleClassification(results) {
+    console.log('handleClassification called with results:', results);
+    
+    // Validate results
+    if (!results || !Array.isArray(results) || results.length === 0) {
+        console.warn('Invalid classification results:', results);
+        return;
+    }
+    
+    // Validate each result has required properties
+    const validResults = results.filter(result => 
+        result && 
+        typeof result === 'object' && 
+        typeof result.probability === 'number' && 
+        typeof result.className === 'string'
+    );
+    
+    if (validResults.length === 0) {
+        console.warn('No valid classification results found:', results);
+        return;
+    }
+    
     // Store predictions
-    predictions = results;
+    predictions = validResults;
     
     // Sort by confidence
     predictions.sort((a, b) => b.probability - a.probability);
@@ -574,6 +760,7 @@ function updateStatus(message) {
  * Update the predictions display
  */
 function updatePredictionsDisplay() {
+    console.log('updatePredictionsDisplay called - predictionsElement:', !!predictionsElement, 'predictions:', predictions);
     if (!predictionsElement || !predictions.length) return;
     
     let html = '<h3>All Predictions:</h3>';
@@ -617,14 +804,20 @@ function updateCurrentPoseDisplay() {
  * Update pose statistics
  */
 function updatePoseStats() {
-    if (!currentPose || !keypointsCountSpan || !poseConfidenceSpan) return;
+    if (!keypointsCountSpan || !poseConfidenceSpan) return;
+    
+    if (!currentPose || !currentPose.keypoints || !Array.isArray(currentPose.keypoints)) {
+        keypointsCountSpan.html('0/17');
+        poseConfidenceSpan.html('0%');
+        return;
+    }
     
     // Count visible keypoints
     let visibleKeypoints = 0;
     let totalConfidence = 0;
     
     for (const keypoint of currentPose.keypoints) {
-        if (keypoint.score > keypointConfidenceThreshold) {
+        if (keypoint && typeof keypoint.score === 'number' && keypoint.score > keypointConfidenceThreshold) {
             visibleKeypoints++;
             totalConfidence += keypoint.score;
         }

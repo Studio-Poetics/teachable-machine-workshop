@@ -12,7 +12,7 @@
 // ========================================
 
 // Replace this with your Teachable Machine model URL
-const MODEL_URL = 'YOUR_MODEL_URL_HERE';
+const MODEL_URL = "https://teachablemachine.withgoogle.com/models/mf-GtpMl_/";
 
 // Canvas dimensions
 const CANVAS_WIDTH = 800;
@@ -103,7 +103,7 @@ function setup() {
     stopBtn.mousePressed(stopListening);
     
     // Load the model
-    loadModel();
+    loadTMModel();
     
     // Set initial status
     updateStatus('Loading model...');
@@ -208,7 +208,7 @@ function updateAudioInfo() {
 /**
  * Load the Teachable Machine model
  */
-async function loadModel() {
+async function loadTMModel() {
     try {
         // Check if model URL is set
         if (MODEL_URL === 'YOUR_MODEL_URL_HERE') {

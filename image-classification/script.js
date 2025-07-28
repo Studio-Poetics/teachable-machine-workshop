@@ -12,7 +12,7 @@
 // ========================================
 
 // Replace this with your Teachable Machine model URL
-const MODEL_URL = 'YOUR_MODEL_URL_HERE';
+const MODEL_URL = "https://teachablemachine.withgoogle.com/models/TZINV8fY4/";
 
 // Canvas dimensions
 const CANVAS_WIDTH = 640;
@@ -41,15 +41,6 @@ let predictionsElement;
 // ========================================
 
 /**
- * Preload function - loads the Teachable Machine model
- * This runs before setup()
- */
-function preload() {
-    // Load the Teachable Machine model
-    classifier = ml5.imageClassifier(MODEL_URL, modelLoadedCallback);
-}
-
-/**
  * Setup function - initializes canvas and webcam
  */
 function setup() {
@@ -65,6 +56,9 @@ function setup() {
     // Get UI elements
     statusElement = select('#status');
     predictionsElement = select('#predictions');
+    
+    // Load the Teachable Machine model
+    loadTMModel();
     
     // Set initial status
     updateStatus('Loading model...');
@@ -95,31 +89,65 @@ function draw() {
 // ========================================
 
 /**
- * Callback function when model is loaded
+ * Load the Teachable Machine model
  */
-function modelLoadedCallback() {
-    console.log('Model loaded successfully!');
-    modelReady = true;
-    updateStatus('Model ready! Show objects to the camera.');
+async function loadTMModel() {
+    try {
+        // Check if model URL is set
+        if (MODEL_URL === 'YOUR_MODEL_URL_HERE') {
+            updateStatus('Please update the MODEL_URL in script.js with your Teachable Machine model URL');
+            return;
+        }
+        
+        // Ensure URL ends with slash
+        const baseURL = MODEL_URL.endsWith('/') ? MODEL_URL : MODEL_URL + '/';
+        
+        // Load the model
+        const modelURL = baseURL + 'model.json';
+        const metadataURL = baseURL + 'metadata.json';
+        
+        console.log('Loading model from:', modelURL);
+        console.log('Loading metadata from:', metadataURL);
+        
+        classifier = await tmImage.load(modelURL, metadataURL);
+        console.log('Model loaded successfully!');
+        modelReady = true;
+        updateStatus('Model ready! Show objects to the camera.');
+        
+    } catch (error) {
+        console.error('Error loading model:', error);
+        updateStatus('Error loading model. Please check the model URL and ensure it\'s an Image model.');
+    }
 }
 
 /**
  * Classify the current video frame
  */
-function classifyVideo() {
-    if (classifier && video) {
-        classifier.classify(video, handleClassification);
+async function classifyVideo() {
+    if (classifier && video && modelReady) {
+        try {
+            const predictions = await classifier.predict(video.canvas);
+            handleClassification(null, predictions);
+        } catch (error) {
+            console.error('Classification error:', error);
+        }
     }
 }
 
 /**
  * Handle classification results
- * @param {Object[]} results - Array of classification results
  * @param {Error} error - Error object if classification failed
+ * @param {Object[]} results - Array of classification results
  */
 function handleClassification(error, results) {
     if (error) {
         console.error('Classification error:', error);
+        return;
+    }
+    
+    // Validate results
+    if (!results || !Array.isArray(results) || results.length === 0) {
+        console.warn('Invalid classification results:', results);
         return;
     }
     
@@ -133,7 +161,7 @@ function handleClassification(error, results) {
     const topPrediction = results[0];
     
     // Only respond if confidence is above threshold
-    if (topPrediction.confidence > CONFIDENCE_THRESHOLD) {
+    if (topPrediction.probability > CONFIDENCE_THRESHOLD) {
         respondToClassification(topPrediction);
     }
 }
@@ -145,8 +173,8 @@ function handleClassification(error, results) {
  * @param {Object} prediction - The top prediction object
  */
 function respondToClassification(prediction) {
-    const className = prediction.label;
-    const confidence = prediction.confidence;
+    const className = prediction.className;
+    const confidence = prediction.probability;
     
     // Example responses - customize these!
     switch(className.toLowerCase()) {
@@ -197,12 +225,12 @@ function updatePredictionsDisplay() {
     // Show top 3 predictions
     for (let i = 0; i < Math.min(3, predictions.length); i++) {
         const prediction = predictions[i];
-        const percentage = (prediction.confidence * 100).toFixed(1);
-        const barWidth = prediction.confidence * 100;
+        const percentage = (prediction.probability * 100).toFixed(1);
+        const barWidth = prediction.probability * 100;
         
         html += `
             <div class="prediction-item">
-                <div class="prediction-label">${prediction.label}</div>
+                <div class="prediction-label">${prediction.className}</div>
                 <div class="prediction-bar">
                     <div class="prediction-fill" style="width: ${barWidth}%"></div>
                     <span class="prediction-confidence">${percentage}%</span>
@@ -235,7 +263,7 @@ function drawPredictions() {
     const topPrediction = predictions[0];
     
     // Only show if confidence is above threshold
-    if (topPrediction.confidence > CONFIDENCE_THRESHOLD) {
+    if (topPrediction.probability > CONFIDENCE_THRESHOLD) {
         push();
         
         // Semi-transparent background
@@ -247,10 +275,10 @@ function drawPredictions() {
         fill(255);
         textAlign(LEFT, TOP);
         textSize(16);
-        text(topPrediction.label, 20, 25);
+        text(topPrediction.className, 20, 25);
         
         textSize(14);
-        const confidence = (topPrediction.confidence * 100).toFixed(1);
+        const confidence = (topPrediction.probability * 100).toFixed(1);
         text(`Confidence: ${confidence}%`, 20, 45);
         
         pop();

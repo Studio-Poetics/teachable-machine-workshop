@@ -7,21 +7,21 @@
 
 /* CSS Variables for easy customization */
 :root {
-    --primary-color: #10b981;
-    --secondary-color: #059669;
-    --accent-color: #34d399;
-    --success-color: #10b981;
-    --warning-color: #f59e0b;
-    --error-color: #ef4444;
-    --background-color: #f0fdf4;
+    --primary-color: #000000;
+    --secondary-color: #333333;
+    --accent-color: #666666;
+    --success-color: #000000;
+    --warning-color: #000000;
+    --error-color: #000000;
+    --background-color: #ffffff;
     --surface-color: #ffffff;
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --border-color: #d1fae5;
-    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --pose-primary: #10b981;
-    --pose-secondary: #059669;
+    --text-primary: #000000;
+    --text-secondary: #444444;
+    --border-color: #000000;
+    --shadow: none;
+    --shadow-lg: none;
+    --pose-primary: #000000;
+    --pose-secondary: #333333;
 }
 
 /* Reset and base styles */
@@ -33,7 +33,7 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%);
+    background: var(--background-color);
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
@@ -78,17 +78,17 @@ header h1 {
 /* Controls */
 .controls {
     background: var(--surface-color);
-    border-radius: 16px;
+    border-radius: 0;
     padding: 1.5rem;
     margin-bottom: 2rem;
-    box-shadow: var(--shadow-lg);
+    box-shadow: none;
     border: 2px solid var(--border-color);
 }
 
 .control-btn {
     padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 12px;
+    border: 2px solid var(--primary-color);
+    border-radius: 0;
     font-family: 'Inter', sans-serif;
     font-size: 1rem;
     font-weight: 600;
@@ -99,25 +99,28 @@ header h1 {
 }
 
 .control-btn.primary {
-    background: linear-gradient(135deg, var(--pose-primary), var(--pose-secondary));
+    background: var(--primary-color);
     color: white;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    box-shadow: none;
 }
 
 .control-btn.primary:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+    background: var(--secondary-color);
+    transform: none;
+    box-shadow: none;
 }
 
 .control-btn.secondary {
-    background: var(--error-color);
-    color: white;
-    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    background: white;
+    color: var(--primary-color);
+    box-shadow: none;
 }
 
 .control-btn.secondary:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+    background: var(--primary-color);
+    color: white;
+    transform: none;
+    box-shadow: none;
 }
 
 .control-btn:disabled {
@@ -158,26 +161,26 @@ header h1 {
 /* Canvas container */
 #canvas-container {
     background: var(--surface-color);
-    border-radius: 16px;
-    padding: 1rem;
-    box-shadow: var(--shadow-lg);
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
     border: 2px solid var(--border-color);
 }
 
 #canvas-container canvas {
-    border-radius: 12px;
+    border-radius: 0;
     display: block;
     width: 100%;
     height: auto;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: none;
 }
 
 /* Info panel */
 .info-panel {
     background: var(--surface-color);
-    border-radius: 16px;
+    border-radius: 0;
     padding: 1.5rem;
-    box-shadow: var(--shadow-lg);
+    box-shadow: none;
     border: 2px solid var(--border-color);
     height: fit-content;
     position: sticky;
@@ -189,12 +192,13 @@ header h1 {
     font-size: 1rem;
     font-weight: 600;
     padding: 1rem;
-    border-radius: 12px;
+    border-radius: 0;
     margin-bottom: 1.5rem;
     text-align: center;
-    background: linear-gradient(135deg, var(--pose-primary), var(--pose-secondary));
+    background: var(--primary-color);
     color: white;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    box-shadow: none;
+    border: 2px solid var(--primary-color);
 }
 
 /* Current pose display */
@@ -212,12 +216,13 @@ header h1 {
 }
 
 .pose-display {
-    background: linear-gradient(135deg, var(--pose-primary), var(--pose-secondary));
+    background: var(--primary-color);
     color: white;
-    border-radius: 12px;
+    border-radius: 0;
     padding: 1rem;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    box-shadow: none;
+    border: 2px solid var(--primary-color);
 }
 
 .pose-name {
@@ -245,14 +250,14 @@ header h1 {
     margin-bottom: 0.75rem;
     padding: 0.75rem;
     background: var(--background-color);
-    border-radius: 12px;
+    border-radius: 0;
     border: 1px solid var(--border-color);
-    transition: all 0.3s ease;
+    transition: none;
 }
 
 .prediction-item:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow);
+    transform: none;
+    box-shadow: none;
 }
 
 .prediction-label {
@@ -266,15 +271,16 @@ header h1 {
 .prediction-bar {
     position: relative;
     height: 20px;
-    background: var(--border-color);
-    border-radius: 10px;
+    background: #f0f0f0;
+    border-radius: 0;
     overflow: hidden;
+    border: 1px solid var(--border-color);
 }
 
 .prediction-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--pose-primary), var(--pose-secondary));
-    border-radius: 10px;
+    background: var(--primary-color);
+    border-radius: 0;
     transition: width 0.3s ease;
 }
 
@@ -313,7 +319,7 @@ header h1 {
     align-items: center;
     padding: 0.75rem;
     background: var(--background-color);
-    border-radius: 8px;
+    border-radius: 0;
     border: 1px solid var(--border-color);
 }
 
@@ -363,22 +369,75 @@ header h1 {
 
 /* Footer */
 footer {
-    text-align: center;
     margin-top: 3rem;
     padding-top: 2rem;
     border-top: 2px solid var(--border-color);
-    color: var(--text-secondary);
-    font-size: 0.875rem;
 }
 
-footer a {
+.studio-branding {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.studio-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.studio-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--pose-primary);
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.02em;
+}
+
+.studio-tagline {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: -2px;
+}
+
+.tech-credits {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-align: right;
+}
+
+.tech-credits p {
+    margin: 0;
+}
+
+.tech-credits a {
     color: var(--pose-primary);
     text-decoration: none;
     font-weight: 500;
 }
 
-footer a:hover {
+.tech-credits a:hover {
     text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+    .studio-branding {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .studio-logo {
+        align-items: center;
+    }
+    
+    .tech-credits {
+        text-align: center;
+    }
 }
 
 /* Animations */
@@ -505,29 +564,34 @@ footer a:hover {
     }
 }
 
-/* Dark mode support */
+/* Dark mode support - override to maintain white background */
 @media (prefers-color-scheme: dark) {
     body {
-        background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
+        background: #ffffff;
     }
     
     .info-panel,
     .controls,
     #canvas-container {
-        background: rgba(17, 24, 39, 0.95);
-        border-color: rgba(16, 185, 129, 0.3);
+        background: #ffffff;
+        border-color: #000000;
     }
     
     :root {
-        --background-color: #111827;
-        --surface-color: #1f2937;
-        --text-primary: #f9fafb;
-        --text-secondary: #9ca3af;
-        --border-color: rgba(16, 185, 129, 0.3);
+        --primary-color: #000000;
+        --secondary-color: #333333;
+        --accent-color: #666666;
+        --background-color: #ffffff;
+        --surface-color: #ffffff;
+        --text-primary: #000000;
+        --text-secondary: #444444;
+        --border-color: #000000;
+        --pose-primary: #000000;
+        --pose-secondary: #333333;
     }
     
     header {
-        color: #f9fafb;
+        color: #000000;
     }
 }
 
