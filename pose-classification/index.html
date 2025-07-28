@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pose Classification Template</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Pose Classification</h1>
+            <p class="subtitle">Move your body and watch the AI classify your poses!</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Controls -->
+            <div class="controls">
+                <button id="start-btn" class="control-btn primary">📹 Start Camera</button>
+                <button id="stop-btn" class="control-btn secondary" disabled>⏹️ Stop</button>
+                
+                <div class="settings">
+                    <label class="setting-item">
+                        <input type="checkbox" id="show-keypoints" checked>
+                        <span class="checkmark"></span>
+                        Show Keypoints
+                    </label>
+                    <label class="setting-item">
+                        <input type="checkbox" id="show-skeleton" checked>
+                        <span class="checkmark"></span>
+                        Show Skeleton
+                    </label>
+                    <label class="setting-item">
+                        <input type="range" id="confidence-slider" min="0" max="1" step="0.1" value="0.5">
+                        <span>Confidence: <span id="confidence-value">0.5</span></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- p5.js canvas will be inserted here -->
+            <div id="canvas-container"></div>
+            
+            <div class="info-panel">
+                <div class="status" id="status">Click "Start Camera" to begin</div>
+                
+                <div class="current-pose">
+                    <h3>Current Pose</h3>
+                    <div id="current-pose-display" class="pose-display">
+                        <div class="pose-name">No pose detected</div>
+                        <div class="pose-confidence">0%</div>
+                    </div>
+                </div>
+                
+                <div class="predictions" id="predictions"></div>
+                
+                <div class="pose-stats">
+                    <h3>Pose Statistics</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Keypoints Detected:</span>
+                            <span id="keypoints-count">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Pose Confidence:</span>
+                            <span id="pose-confidence">0%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Classification Rate:</span>
+                            <span>2 per second</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="instructions">
+                    <h3>Instructions:</h3>
+                    <ul>
+                        <li>Click "Start Camera" and allow camera access</li>
+                        <li>Position yourself so your full body is visible</li>
+                        <li>Try different poses and watch the classification</li>
+                        <li>Adjust settings to customize the visualization</li>
+                        <li>Ensure good lighting for better detection</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built with <a href="https://teachablemachine.withgoogle.com/" target="_blank">Teachable Machine</a> & <a href="https://p5js.org/" target="_blank">p5.js</a></p>
+        </footer>
+    </div>
+
+    <!-- p5.js and Teachable Machine libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/pose@latest/dist/teachablemachine-pose.min.js"></script>
+    
+    <!-- Your sketch -->
+    <script src="script.js"></script>
+</body>
+</html>

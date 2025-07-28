@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Classification Template</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Image Classification</h1>
+            <p class="subtitle">Show objects to your camera and watch the AI classify them!</p>
+        </header>
+
+        <div class="main-content">
+            <!-- p5.js canvas will be inserted here -->
+            <div id="canvas-container"></div>
+            
+            <div class="info-panel">
+                <div class="status" id="status">Loading model...</div>
+                <div class="predictions" id="predictions"></div>
+                <div class="instructions">
+                    <h3>Instructions:</h3>
+                    <ul>
+                        <li>Allow camera access when prompted</li>
+                        <li>Show different objects to the camera</li>
+                        <li>Watch the real-time classification results</li>
+                        <li>Move objects closer/farther for better detection</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built with <a href="https://teachablemachine.withgoogle.com/" target="_blank">Teachable Machine</a> & <a href="https://p5js.org/" target="_blank">p5.js</a></p>
+        </footer>
+    </div>
+
+    <!-- p5.js and Teachable Machine libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    
+    <!-- Your sketch -->
+    <script src="script.js"></script>
+</body>
+</html>

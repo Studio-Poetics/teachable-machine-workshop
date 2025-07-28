@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Classification Template</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Audio Classification</h1>
+            <p class="subtitle">Make sounds and watch the AI classify them in real-time!</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Audio controls -->
+            <div class="controls">
+                <button id="start-btn" class="control-btn primary">🎤 Start Listening</button>
+                <button id="stop-btn" class="control-btn secondary" disabled>⏹️ Stop</button>
+                <div class="volume-meter">
+                    <label>Volume:</label>
+                    <div class="volume-bar">
+                        <div id="volume-level" class="volume-fill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- p5.js canvas will be inserted here -->
+            <div id="canvas-container"></div>
+            
+            <div class="info-panel">
+                <div class="status" id="status">Click "Start Listening" to begin</div>
+                <div class="predictions" id="predictions"></div>
+                <div class="instructions">
+                    <h3>Instructions:</h3>
+                    <ul>
+                        <li>Click "Start Listening" and allow microphone access</li>
+                        <li>Make different sounds (clapping, whistling, speaking, etc.)</li>
+                        <li>Watch the real-time classification results</li>
+                        <li>Observe the audio visualization in the canvas</li>
+                        <li>Try varying volume and duration of sounds</li>
+                    </ul>
+                </div>
+                
+                <div class="audio-info">
+                    <h3>Audio Info:</h3>
+                    <div class="info-item">
+                        <span class="label">Sample Rate:</span>
+                        <span id="sample-rate">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Channels:</span>
+                        <span id="channels">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Classification Rate:</span>
+                        <span>Every 1 second</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built with <a href="https://teachablemachine.withgoogle.com/" target="_blank">Teachable Machine</a> & <a href="https://p5js.org/" target="_blank">p5.js</a></p>
+        </footer>
+    </div>
+
+    <!-- p5.js and Teachable Machine libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/audio@latest/dist/teachablemachine-audio.min.js"></script>
+    
+    <!-- Your sketch -->
+    <script src="script.js"></script>
+</body>
+</html>
