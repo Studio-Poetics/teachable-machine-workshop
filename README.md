@@ -1,4 +1,5 @@
 # Teachable Machine + p5.js Templates
+*by Studio Poetics - Quick Prototype & Learning*
 
 This directory contains three comprehensive templates for using Google's Teachable Machine with p5.js. Each template is fully documented and ready for students to customize for their own projects.
 
@@ -231,6 +232,26 @@ Created something amazing with these templates? We'd love to see it! These templ
 
 ---
 
+## 🏛️ About Studio Poetics
+
+**Studio Poetics** is dedicated to making AI and creative technology accessible through rapid prototyping and hands-on learning. These templates are designed to get you from idea to working prototype as quickly as possible.
+
+### Our Philosophy
+- **Quick Prototype**: Get ideas working fast, iterate rapidly
+- **Learning First**: Every template is educational and well-documented  
+- **Creative Focus**: Technology serves creativity, not the other way around
+- **Open Access**: Knowledge should be freely shared and accessible
+
+### More Resources
+- Explore more creative coding templates and tutorials
+- Join our community of creative technologists
+- Share your projects and get feedback
+- Learn about emerging AI tools and techniques
+
+---
+
 **Happy coding! 🎉**
+
+*Studio Poetics - Where Poetry Meets Technology*
 
 Remember: The best way to learn is by experimenting. Don't be afraid to break things, try new ideas, and push the boundaries of what's possible with AI and creative coding.
